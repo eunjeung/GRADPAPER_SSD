@@ -43,27 +43,27 @@ int main()
 	//double afterFormatStartTime = 19200;
 	int count1 = 0, count2 = 0, count3 =0;
 	//int value=1;
-	int *buff1, *buff2, *buff3;
+	char *buff1, *buff2, *buff3;
 	int ret, ret1, ret2;
 
-	buff1 = (int *)calloc(1, sizeof(int));
-	buff2 = (int *)calloc(1, sizeof(int));
-	buff3 = (int *)calloc(1, sizeof(int));
-	
-	*buff1 = 1;
-	*buff2 = 2;
-	*buff3 = 3;
+	buff1 = malloc(sizeof(char)*PAGE_SIZE);
+	buff2 = malloc(sizeof(char)*PAGE_SIZE);
+	buff3 = malloc(sizeof(char)*PAGE_SIZE);
+
+	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
+	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
+	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 
 	for (int i = 0; i < SIZE; i++)
 	{
 		//long int r = random()%SIZE;
-		result = ssd -> event_arrive(WRITE, i, 1, start_time, buff1);
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 		//printf("Write time: %.20lf\n", result);
-		start_time += result;
+		//start_time += result;
 	}
 
 	for(int i=0;i<TOTAL_SIZE;i++){
-		ret = memcmp(page_data+i*PAGE_SIZE,buff1,4);
+		ret = memcmp(page_data+i*PAGE_SIZE,buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 	}
 

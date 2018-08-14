@@ -27,36 +27,33 @@
 #define SIZE 24
 //#define SIZE 262144
 #define TOTAL_SIZE ((int)(SIZE+SIZE*0.2))
-#define PAGE_SIZE_NEW ((int) 8)
+#define NEW_PSIZE ((int) 8)
 
 using namespace ssd;
 
 int main()
 {
+	
 	load_config();
 	print_config(NULL);
 	printf("\n");
-
+	
 	Ssd *ssd = new Ssd();
+	
 
 	double result;
 	double start_time=0;
 	int count1 = 0, count2 = 0, count3 =0;
 	int ret, ret1, ret2;
 	
-	char *buff1 = malloc(sizeof(char)*PAGE_SIZE_NEW); 
-	char *buff2, *buff3;
-	
+	void *buff1 = malloc(sizeof(char)*NEW_PSIZE); 
+	void *buff2 = malloc(sizeof(char)*NEW_PSIZE);
+	void *buff3 = malloc(sizeof(char)*NEW_PSIZE);
 
-	/*
-	buff1 = malloc(sizeof(char)*PAGE_SIZE_NEW);
-	buff2 = malloc(sizeof(char)*PAGE_SIZE_NEW);
-	buff3 = malloc(sizeof(char)*PAGE_SIZE_NEW);
-	*/
 
-	memset(buff1, 1, sizeof(char)*PAGE_SIZE_NEW);
-	memset(buff2, 2, sizeof(char)*PAGE_SIZE_NEW);
-	memset(buff3, 3, sizeof(char)*PAGE_SIZE_NEW);
+	memset(buff1, 1, sizeof(char)*NEW_PSIZE);
+	memset(buff2, 2, sizeof(char)*NEW_PSIZE);
+	memset(buff3, 3, sizeof(char)*NEW_PSIZE);
 
 	for (int i = 0; i < SIZE; i++)
 	{
@@ -65,7 +62,7 @@ int main()
 	}
 
 	for(int i=0;i<TOTAL_SIZE;i++){
-		ret = memcmp(page_data+i*PAGE_SIZE_NEW,buff1,(sizeof(char)*PAGE_SIZE_NEW));
+		ret = memcmp((page_data+(i*NEW_PSIZE)),buff1,(sizeof(char)*NEW_PSIZE));
 		if(ret==0) count1++;
 	}
 
@@ -74,5 +71,6 @@ int main()
 	//printf("number of '3' : %d \n", count3);
 	ssd -> print_statistics();
 	delete ssd;
+	
 	return 0;
 }

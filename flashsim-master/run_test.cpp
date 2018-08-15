@@ -25,6 +25,7 @@
 #include "ssd.h"
 #include <string.h>
 #define SIZE ceil(NUMBER_OF_ADDRESSABLE_BLOCKS / (1 + OP_AREA))
+#define TOTAL_SIZE (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 //#define SIZE 262144
 
 using namespace ssd;
@@ -38,9 +39,10 @@ int main()
 	
 	Ssd *ssd = new Ssd();
 	
-	printf("%d\n", PAGE_SIZE);
-	printf("%d\n", NUMBER_OF_ADDRESSABLE_BLOCKS);
-	printf("%lf\n", SIZE);
+	printf("PAGE_SIZE : %d\n", PAGE_SIZE);
+	printf("NUMBER_OF_ADDRESSABLE_BLOCKS : %d\n", NUMBER_OF_ADDRESSABLE_BLOCKS);
+	printf("SIZE : %lf\n", SIZE);
+	printf("TOTAL_SIZE : %d\n", TOTAL_SIZE);
 
 	double result;
 	double start_time=0;
@@ -62,16 +64,69 @@ int main()
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
 
-	for(int i=0;i<(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE);i++){
+	for(int i=0;i<TOTAL_SIZE;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 	}
 
+	printf("\n--------- 1st test \n");
 	printf("number of '1' : %d \n", count1);
-	//printf("number of '2' : %d \n", count2);
-	//printf("number of '3' : %d \n", count3);
+
+	for (int i = 0; i < SIZE*BLOCK_SIZE; i++)
+	{
+		//long int r = random()%SIZE;
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+	}
+
+	count1=0;
+	count2=0;
+
+	for(int i=0;i<TOTAL_SIZE;i++){
+		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+		if(ret==0) count1++;
+		else{
+			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+			if(ret1==0) count2++;
+		}
+	}
+
+	printf("\n--------- 2nd test \n");
+	printf("number of '1' : %d \n", count1);
+	printf("number of '2' : %d \n", count2);
+
+	for (int i = 0; i < SIZE*BLOCK_SIZE; i++)
+	{
+		//long int r = random()%SIZE;
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff3);
+	}
+
+	count1=0;
+	count2=0;
+	count3=0;
+
+	for(int i=0;i<TOTAL_SIZE;i++){
+		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+		if(ret==0) count1++;
+		else{
+			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+			if(ret1==0) count2++;
+			else{
+				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
+				if(ret2==0) count3++;
+			}
+		}
+	}
+
+	printf("\n--------- 3rd test \n");
+	printf("number of '1' : %d \n", count1);
+	printf("number of '2' : %d \n", count2);
+	printf("number of '3' : %d \n", count3);
+	
 	ssd -> print_statistics();
 	delete ssd;
+	free(buff1);
+	free(buff2);
+	free(buff3);
 	
 	return 0;
 }

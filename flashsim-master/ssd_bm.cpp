@@ -91,7 +91,14 @@ void Block_manager::get_page_block(Address &address, Event &event)
 			insert_events(event);
 		}
 
+		//if(free_list.size() != 0)
+		//	printf("!!!!!!!!!!size %d!! %d\n", free_list.size(), __LINE__);
+		//	else
+		//	printf("!!!!!!!!!!!! %d\n", __LINE__);
+
+		//printf("!!!!!!!!!!!!!!%d\n", __LINE__);
 		assert(free_list.size() != 0);
+		//	printf("!!!!!!!!!%d\n", __LINE__);
 		address.set_linear_address(free_list.front()->get_physical_address(), BLOCK);
 		current_writing_block = free_list.front()->get_physical_address();
 		free_list.erase(free_list.begin());

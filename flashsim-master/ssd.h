@@ -121,7 +121,7 @@ extern const bool PAGE_ENABLE_DATA;
 
 /*
  * Overprovisioning Area */
-extern const double OP_AREA;
+extern const uint OP_AREA;
 
 /*
  * Mapping directory

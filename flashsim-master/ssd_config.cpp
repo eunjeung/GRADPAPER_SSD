@@ -121,7 +121,7 @@ uint PAGE_SIZE = 4096;
 bool PAGE_ENABLE_DATA = true;
 
 /* Size of Overprovisioning Area */
-double OP_AREA = 0.00;
+uint OP_AREA = 0;
 
 /*
  * Memory area to support pages with data.

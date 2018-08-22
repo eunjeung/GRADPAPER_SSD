@@ -24,8 +24,11 @@
 
 #include "ssd.h"
 #include <string.h>
-#define SIZE ceil(NUMBER_OF_ADDRESSABLE_BLOCKS / (1 + OP_AREA))
+//#define SIZE (int)((ceil(NUMBER_OF_ADDRESSABLE_BLOCKS - (1+OP_AREA)))*BLOCK_SIZE)
+#define SIZE (int)((NUMBER_OF_ADDRESSABLE_BLOCKS-9)*(BLOCK_SIZE))
 #define TOTAL_SIZE (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
+//#define FILE_SIZE (int)(10*BLOCK_SIZE)
+#define FILE_SIZE 1
 //#define SIZE 262144
 
 using namespace ssd;
@@ -36,12 +39,13 @@ int main()
 	load_config();
 	print_config(NULL);
 	printf("\n");
-	
+
 	Ssd *ssd = new Ssd();
 	
-	printf("PAGE_SIZE : %d\n", PAGE_SIZE);
+	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
 	printf("NUMBER_OF_ADDRESSABLE_BLOCKS : %d\n", NUMBER_OF_ADDRESSABLE_BLOCKS);
-	printf("SIZE : %lf\n", SIZE);
+	printf("SIZE : %d\n", SIZE);
+	//printf("OP_SIZE : %d\n", (OP_AREA+1));
 	printf("TOTAL_SIZE : %d\n", TOTAL_SIZE);
 
 	double result;
@@ -58,12 +62,13 @@ int main()
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
-	for (int i = 0; i < SIZE*BLOCK_SIZE; i++)
+	for (int i = 0; i < FILE_SIZE; i++)
 	{
 		//long int r = random()%SIZE;
+		//printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
-
+	
 	for(int i=0;i<TOTAL_SIZE;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
@@ -72,9 +77,12 @@ int main()
 	printf("\n--------- 1st test \n");
 	printf("number of '1' : %d \n", count1);
 
-	for (int i = 0; i < SIZE*BLOCK_SIZE; i++)
+	ssd -> print_statistics();
+
+	for (int i = 0; i < BLOCK_SIZE; i++)
 	{
-		//long int r = random()%SIZE;
+	//	long int r = random()%SIZE;
+	//	printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}
 
@@ -94,10 +102,15 @@ int main()
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);
 
-	for (int i = 0; i < SIZE*BLOCK_SIZE; i++)
-	{
-		//long int r = random()%SIZE;
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff3);
+	ssd -> print_statistics();
+	
+	for(int j=0;j<(int)(NUMBER_OF_ADDRESSABLE_BLOCKS);j++){
+		for (int i = 1; i < BLOCK_SIZE; i++)
+		{
+		//	long int r = random()%SIZE;
+		//	printf("%d: %d\n",i,r);
+			result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff3);
+		}
 	}
 
 	count1=0;
@@ -121,8 +134,11 @@ int main()
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);
 	printf("number of '3' : %d \n", count3);
-	
+
+	printf("\n");	
+
 	ssd -> print_statistics();
+
 	delete ssd;
 	free(buff1);
 	free(buff2);

@@ -76,7 +76,7 @@ int main()
 
 	ssd -> print_statistics();
 
-	for (int i = 0; i < BLOCK_SIZE; i++)
+	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
 	{
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);
@@ -101,13 +101,11 @@ int main()
 
 	ssd -> print_statistics();
 	
-	for(int j=0;j<(int)(NUMBER_OF_ADDRESSABLE_BLOCKS);j++){
-		for (int i = 1; i < BLOCK_SIZE; i++)
-		{
-		//	long int r = random()%SIZE;
-		//	printf("%d: %d\n",i,r);
-			result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff3);
-		}
+	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
+	{
+		//long int r = random()%SIZE;
+		//printf("%d: %d\n", i, r);
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}
 
 	count1=0;

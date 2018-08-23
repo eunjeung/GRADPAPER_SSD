@@ -24,9 +24,8 @@
 
 #include "ssd.h"
 #include <string.h>
-//#define SIZE (int)((ceil(NUMBER_OF_ADDRESSABLE_BLOCKS - (1+OP_AREA)))*BLOCK_SIZE)
-#define SIZE (int)((NUMBER_OF_ADDRESSABLE_BLOCKS-9)*(BLOCK_SIZE))
-#define TOTAL_SIZE (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
+#define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
+#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
 #define FILE_SIZE 1
 //#define SIZE 262144
@@ -43,10 +42,8 @@ int main()
 	Ssd *ssd = new Ssd();
 	
 	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
-	printf("NUMBER_OF_ADDRESSABLE_BLOCKS : %d\n", NUMBER_OF_ADDRESSABLE_BLOCKS);
-	printf("SIZE : %d\n", SIZE);
-	//printf("OP_SIZE : %d\n", (OP_AREA+1));
-	printf("TOTAL_SIZE : %d\n", TOTAL_SIZE);
+	printf("NUMBER_OF_ADDRESSABLE_PAGES : %d\n", NUMBER_OF_ADDRESSABLE_PAGES);
+	printf("USER_ADDRESS_SPACE : %d\n", USER_ADDRESS_SPACE);
 
 	double result;
 	double start_time=0;
@@ -69,7 +66,7 @@ int main()
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
 	
-	for(int i=0;i<TOTAL_SIZE;i++){
+	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 	}
@@ -89,7 +86,7 @@ int main()
 	count1=0;
 	count2=0;
 
-	for(int i=0;i<TOTAL_SIZE;i++){
+	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 		else{
@@ -117,7 +114,7 @@ int main()
 	count2=0;
 	count3=0;
 
-	for(int i=0;i<TOTAL_SIZE;i++){
+	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 		else{

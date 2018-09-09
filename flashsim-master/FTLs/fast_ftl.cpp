@@ -265,6 +265,65 @@ enum status FtlImpl_Fast::trim(Event &event)
 	return controller.issue(event);
 }
 
+//update eunjeung
+enum status FtlImpl_Fast::force_erase(Event &event)
+{
+	initialize_log_pages();
+	
+	// Find block
+	long lookupBlock = (event.get_logical_address() >> addressShift);
+	uint lbnOffset = event.get_logical_address() % BLOCK_SIZE;
+
+	Address eventAddress = Address(event.get_logical_address(), PAGE);
+	LogPageBlock *currentBlock = log_pages;
+
+	bool found = false;
+	while (!found && currentBlock != NULL)
+	{
+		for (int i=0;i<currentBlock->numPages;i++)
+		{
+			//event.incr_time_taken(RAM_READ_DELAY);
+
+			if (currentBlock->aPages[i] == (long)event.get_logical_address())
+			{
+				Address eraseAddress = Address(currentBlock->address.get_linear_address() + i, PAGE);
+				event.set_address(eraseAddress);
+
+				// Cancel the while and for loop
+				found = true;
+				break;
+			}
+		}
+
+		currentBlock = currentBlock->next;
+	}
+
+	if (!found)
+	{
+		if (sequential_logicalblock_address == lookupBlock && sequential_offset > lbnOffset)
+		{
+			event.set_address(Address(sequential_address.get_linear_address() + lbnOffset, PAGE));
+		}
+		else if (data_list[lookupBlock] != -1) // If page is in the data block
+		{
+			event.set_address(Address(data_list[lookupBlock] + lbnOffset , PAGE));
+		} else { // Empty
+			event.set_address(Address(0, PAGE));
+			event.set_noop(true);
+		}
+	}
+	
+	event.set_noop(true);
+	event.set_address(Address(0,PAGE));
+
+	Block_manager::instance()->insert_events(event);
+	
+	//Statistics
+	controller.stats.numFTLEraseF++;
+
+	return controller.issue(event);
+}
+
 void FtlImpl_Fast::switch_sequential(Event &event)
 {
 	// Add to empty list i.e. switch without erasing the datablock.

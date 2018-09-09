@@ -192,7 +192,7 @@ enum block_state{FREE, ACTIVE, INACTIVE};
  * 	                                page states set to empty)
  * 	merge - move valid pages from block at address (page state set to invalid)
  * 	           to free pages in block at merge_address */
-enum event_type{READ, WRITE, ERASE, MERGE, TRIM};
+enum event_type{READ, WRITE, ERASE, MERGE, TRIM, FORCE_ERASE};
 
 /* General return status
  * return status for simulator operations that only need to provide general
@@ -299,6 +299,7 @@ public:
 	long numFTLWrite;
 	long numFTLErase;
 	long numFTLTrim;
+	long numFTLEraseF;
 
 	// Garbage Collection
 	long numGCRead;
@@ -763,6 +764,7 @@ public:
 	virtual enum status read(Event &event) = 0;
 	virtual enum status write(Event &event) = 0;
 	virtual enum status trim(Event &event) = 0;
+	virtual enum status force_erase(Event &event) = 0;
 	virtual void cleanup_block(Event &event, Block *block);
 
 	virtual void print_ftl_statistics();
@@ -788,6 +790,7 @@ public:
 	enum status read(Event &event);
 	enum status write(Event &event);
 	enum status trim(Event &event);
+	enum status force_erase(Event &event);
 private:
 	ulong currentPage;
 	ulong numPagesActive;
@@ -803,6 +806,7 @@ public:
 	enum status read(Event &event);
 	enum status write(Event &event);
 	enum status trim(Event &event);
+	enum status force_erase(Event &event);
 private:
 	std::map<long, LogPageBlock*> log_map;
 
@@ -830,6 +834,7 @@ public:
 	enum status read(Event &event);
 	enum status write(Event &event);
 	enum status trim(Event &event);
+	enum status force_erase(Event &event);
 private:
 	void initialize_log_pages();
 
@@ -869,6 +874,7 @@ public:
 	virtual enum status read(Event &event) = 0;
 	virtual enum status write(Event &event) = 0;
 	virtual enum status trim(Event &event) = 0;
+	virtual enum status force_erase(Event &event) = 0;
 protected:
 	struct MPage {
 		long vpn;
@@ -934,6 +940,7 @@ public:
 	enum status read(Event &event);
 	enum status write(Event &event);
 	enum status trim(Event &event);
+	enum status force_erase(Event &event);
 	void cleanup_block(Event &event, Block *block);
 	void print_ftl_statistics();
 };
@@ -946,6 +953,7 @@ public:
 	enum status read(Event &event);
 	enum status write(Event &event);
 	enum status trim(Event &event);
+	enum status force_erase(Event &event);
 	void cleanup_block(Event &event, Block *block);
 private:
 	struct BPage {

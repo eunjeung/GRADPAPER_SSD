@@ -76,11 +76,11 @@ int main()
 
 	ssd -> print_statistics();
 
-	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
+	for (int i = 1; i < FILE_SIZE; i++)
 	{
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+		result = ssd -> event_arrive(FORCE_ERASE, i, 1, (double)(300*i));
 	}
 
 	count1=0;
@@ -100,7 +100,7 @@ int main()
 	printf("number of '2' : %d \n", count2);
 
 	ssd -> print_statistics();
-	
+	/*
 	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
 	{
 		//long int r = random()%SIZE;
@@ -129,7 +129,7 @@ int main()
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);
 	printf("number of '3' : %d \n", count3);
-
+*/
 	printf("\n");	
 
 	ssd -> print_statistics();

@@ -76,6 +76,8 @@ enum status Controller::event_arrive(Event &event)
 		return ftl->write(event);
 	else if(event.get_event_type() == TRIM)
 		return ftl->trim(event);
+	else if(event.get_event_type() == FORCE_ERASE)
+		return ftl->force_erase(event);
 	else
 		fprintf(stderr, "Controller: %s: Invalid event type\n", __func__);
 	return FAILURE;

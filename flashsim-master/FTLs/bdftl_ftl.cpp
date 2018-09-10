@@ -104,6 +104,9 @@ enum status FtlImpl_BDftl::read(Event &event)
 	return controller.issue(event);
 }
 
+enum status FtlImpl_BDftl::force_erase(Event &event)
+{
+}
 
 enum status FtlImpl_BDftl::write(Event &event)
 {

@@ -74,6 +74,10 @@ enum status FtlImpl_Dftl::read(Event &event)
 	return controller.issue(event);
 }
 
+enum status FtlImpl_Dftl::force_erase(Event &event)
+{
+}
+
 enum status FtlImpl_Dftl::write(Event &event)
 {
 	uint dlpn = event.get_logical_address();

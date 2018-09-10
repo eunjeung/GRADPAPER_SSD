@@ -24,6 +24,7 @@
 
 #include "ssd.h"
 #include <string.h>
+#include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
@@ -56,8 +57,8 @@ int main()
 
 
 	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
-	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
-	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
+//	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
+//	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
 	for (int i = 0; i < FILE_SIZE; i++)
 	{

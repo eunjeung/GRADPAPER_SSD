@@ -43,6 +43,10 @@ FtlImpl_Page::~FtlImpl_Page(void)
 	return;
 }
 
+enum status FtlImpl_Page::force_erase(Event &event)
+{
+}
+
 enum status FtlImpl_Page::read(Event &event)
 {
 	event.set_address(Address(0, PAGE));

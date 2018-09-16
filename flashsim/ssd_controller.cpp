@@ -135,6 +135,9 @@ enum status Controller::issue(Event &event_list)
 		{
 			return SUCCESS;
 		}
+		else if(cur -> get_event_type() == FORCE_ERASE){
+			return SUCCESS;
+		}
 		else
 		{
 			fprintf(stderr, "Controller: %s: Invalid event type\n", __func__);

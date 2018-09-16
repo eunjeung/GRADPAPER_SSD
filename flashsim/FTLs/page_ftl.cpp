@@ -80,6 +80,11 @@ enum status FtlImpl_Page::write(Event &event)
 	return controller.issue(event);
 }
 
+enum status FtlImpl_Page::force_erase(Event &event)
+{
+}
+
+
 enum status FtlImpl_Page::trim(Event &event)
 {
 	controller.stats.numFTLTrim++;

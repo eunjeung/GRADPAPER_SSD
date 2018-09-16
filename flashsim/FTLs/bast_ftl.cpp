@@ -131,6 +131,11 @@ enum status FtlImpl_Bast::read(Event &event)
 	return controller.issue(event);
 }
 
+enum status FtlImpl_Bast::force_erase(Event &event)
+{
+
+}
+
 enum status FtlImpl_Bast::write(Event &event)
 {
 	LogPageBlock *logBlock = NULL;

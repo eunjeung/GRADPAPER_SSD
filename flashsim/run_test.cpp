@@ -77,7 +77,7 @@ int main()
 
 	ssd -> print_statistics();
 
-	for (int i = 1; i < FILE_SIZE; i++)
+	for (int i = 0; i < FILE_SIZE; i++)
 	{
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);
@@ -90,15 +90,16 @@ int main()
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
+		/*
 		else{
 			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
 			if(ret1==0) count2++;
-		}
+		}*/
 	}
 
 	printf("\n--------- 2nd test \n");
 	printf("number of '1' : %d \n", count1);
-	printf("number of '2' : %d \n", count2);
+	//printf("number of '2' : %d \n", count2);
 
 	ssd -> print_statistics();
 	/*
@@ -133,12 +134,12 @@ int main()
 */
 	printf("\n");	
 
-	ssd -> print_statistics();
+	//ssd -> print_statistics();
 
 	delete ssd;
 	free(buff1);
-	free(buff2);
-	free(buff3);
+	//free(buff2);
+	//free(buff3);
 	
 	return 0;
 }

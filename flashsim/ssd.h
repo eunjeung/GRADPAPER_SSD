@@ -763,6 +763,7 @@ public:
 	virtual enum status read(Event &event) = 0;
 	virtual enum status write(Event &event) = 0;
 	virtual enum status trim(Event &event) = 0;
+	virtual enum status force_erase(Event &event) = 0;
 	virtual void cleanup_block(Event &event, Block *block);
 
 	virtual void print_ftl_statistics();

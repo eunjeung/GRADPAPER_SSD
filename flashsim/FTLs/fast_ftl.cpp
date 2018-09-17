@@ -268,13 +268,14 @@ enum status FtlImpl_Fast::trim(Event &event)
 //update eunjeung
 enum status FtlImpl_Fast::force_erase(Event &event)
 {
-	initialize_log_pages();
-	
+		initialize_log_pages();
+
 	// Find block
 	long lookupBlock = (event.get_logical_address() >> addressShift);
 	uint lbnOffset = event.get_logical_address() % BLOCK_SIZE;
 
 	Address eventAddress = Address(event.get_logical_address(), PAGE);
+
 	LogPageBlock *currentBlock = log_pages;
 
 	bool found = false;
@@ -286,8 +287,12 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 			if (currentBlock->aPages[i] == (long)event.get_logical_address())
 			{
-				Address eraseAddress = Address(currentBlock->address.get_linear_address() + i, PAGE);
-				event.set_address(eraseAddress);
+				Address address = Address(currentBlock->address.get_linear_address() + i, PAGE);
+
+				currentBlock->aPages[i] = -1;
+				data_list[lookupBlock] = -1;
+
+				event.set_address(address);
 
 				// Cancel the while and for loop
 				found = true;
@@ -302,21 +307,25 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	{
 		if (sequential_logicalblock_address == lookupBlock && sequential_offset > lbnOffset)
 		{
-			event.set_address(Address(sequential_address.get_linear_address() + lbnOffset, PAGE));
+			Address address = Address(sequential_address.get_linear_address() + lbnOffset, PAGE);
+			sequential_logicalblock_address = -1;
 		}
 		else if (data_list[lookupBlock] != -1) // If page is in the data block
 		{
-			event.set_address(Address(data_list[lookupBlock] + lbnOffset , PAGE));
+			Address address = Address(data_list[lookupBlock] + lbnOffset , PAGE);
+			data_list[lookupBlock] = -1;
 		} else { // Empty
 			event.set_address(Address(0, PAGE));
 			event.set_noop(true);
 		}
 	}
-	
-	event.set_noop(true);
-	event.set_address(Address(0,PAGE));
 
-	Block_manager::instance()->insert_events(event);
+	printf("Erasing %li for %lu\n", event.get_address().get_linear_address(), event.get_logical_address());
+
+	Event erase_event = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
+	erase_event.set_address(Address(event.get_address().get_linear_address(), PAGE));
+	if (controller.issue(erase_event) == FAILURE) {	assert(false);}
+	event.incr_time_taken(erase_event.get_time_taken());
 	
 	//Statistics
 	controller.stats.numFTLEraseF++;

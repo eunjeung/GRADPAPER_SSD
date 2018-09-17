@@ -41,6 +41,7 @@ void Stats::reset()
 	numFTLWrite = 0;
 	numFTLErase = 0;
 	numFTLTrim = 0;
+	numFTLEraseF = 0;
 
 	//GC
 	numGCRead = 0;

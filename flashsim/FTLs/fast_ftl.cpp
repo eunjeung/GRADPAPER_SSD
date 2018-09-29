@@ -279,6 +279,12 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	Address newDataBlock = Block_manager::instance()->get_free_block(DATA, event);
 
 	LogPageBlock *currentBlock = log_pages;
+	
+	/*
+	void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
+	memset(buff1, 0, sizeof(char)*PAGE_SIZE);
+	*/
+
 
 	bool found = false;
 	while (!found && currentBlock != NULL)
@@ -334,15 +340,12 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
 		readEvent.set_address(readAddress);
 		
-		void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
-		memset(buff1, 0, sizeof(char)*PAGE_SIZE);
-
 		if (controller.issue(readEvent) == FAILURE) { 
 			printf("Read failed\n"); 
 			break; 
 		}
 
-		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken(), buff1);
+		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
 		writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
 		writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
 		

@@ -25,6 +25,7 @@
 #include <math.h>
 #include <vector>
 #include <queue>
+#include <string.h>
 #include <iostream>
 #include <signal.h>
 #include "../ssd.h"
@@ -268,13 +269,14 @@ enum status FtlImpl_Fast::trim(Event &event)
 //update eunjeung
 enum status FtlImpl_Fast::force_erase(Event &event)
 {
-		initialize_log_pages();
+	initialize_log_pages();
 
 	// Find block
 	long lookupBlock = (event.get_logical_address() >> addressShift);
 	uint lbnOffset = event.get_logical_address() % BLOCK_SIZE;
 
 	Address eventAddress = Address(event.get_logical_address(), PAGE);
+	Address newDataBlock = Block_manager::instance()->get_free_block(DATA, event);
 
 	LogPageBlock *currentBlock = log_pages;
 
@@ -284,14 +286,9 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		for (int i=0;i<currentBlock->numPages;i++)
 		{
 			//event.incr_time_taken(RAM_READ_DELAY);
-
 			if (currentBlock->aPages[i] == (long)event.get_logical_address())
 			{
 				Address address = Address(currentBlock->address.get_linear_address() + i, PAGE);
-
-				currentBlock->aPages[i] = -1;
-				data_list[lookupBlock] = -1;
-
 				event.set_address(address);
 
 				// Cancel the while and for loop
@@ -307,13 +304,12 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	{
 		if (sequential_logicalblock_address == lookupBlock && sequential_offset > lbnOffset)
 		{
-			Address address = Address(sequential_address.get_linear_address() + lbnOffset, PAGE);
-			sequential_logicalblock_address = -1;
+			event.set_address(Address(sequential_address.get_linear_address() + lbnOffset, PAGE));
 		}
 		else if (data_list[lookupBlock] != -1) // If page is in the data block
 		{
-			Address address = Address(data_list[lookupBlock] + lbnOffset , PAGE);
-			data_list[lookupBlock] = -1;
+			event.set_address(Address(data_list[lookupBlock] + lbnOffset , PAGE));
+
 		} else { // Empty
 			event.set_address(Address(0, PAGE));
 			event.set_noop(true);
@@ -321,11 +317,50 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	}
 
 	printf("Erasing %li for %lu\n", event.get_address().get_linear_address(), event.get_logical_address());
+	
+	for (uint i=0; i<BLOCK_SIZE; i++){
+		Address readAddress;
+		
+		Address seq = Address(data_list[lookupBlock] + i, PAGE);
+		
+		if(get_state(seq) == VALID)
+			readAddress = seq;
+		else if(lbnOffset != i && data_list[lookupBlock] != -1 && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
+			readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
+		}
+		else
+			continue;
+		
+		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
+		readEvent.set_address(readAddress);
+		
+		void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
+		memset(buff1, 0, sizeof(char)*PAGE_SIZE);
 
-	Event erase_event = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
-	erase_event.set_address(Address(event.get_address().get_linear_address(), PAGE));
-	if (controller.issue(erase_event) == FAILURE) {	assert(false);}
-	event.incr_time_taken(erase_event.get_time_taken());
+		if (controller.issue(readEvent) == FAILURE) { 
+			printf("Read failed\n"); 
+			break; 
+		}
+
+		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken(), buff1);
+		writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
+		writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
+		
+		if (controller.issue(writeEvent) == FAILURE) {  
+			printf("Write failed\n"); 
+			break; 
+		}
+
+		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
+
+		// Statistics
+		controller.stats.numFTLRead++;
+		controller.stats.numFTLWrite++;
+		controller.stats.numWLRead++;
+		controller.stats.numWLWrite++;
+	}
+	
+	//block erase
 	
 	//Statistics
 	controller.stats.numFTLEraseF++;

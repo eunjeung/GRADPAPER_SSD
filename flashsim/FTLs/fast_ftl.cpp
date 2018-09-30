@@ -337,31 +337,29 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		else
 			continue;
 		
-		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
-		readEvent.set_address(readAddress);
-		
-		if (controller.issue(readEvent) == FAILURE) { 
-			printf("Read failed\n"); 
-			break; 
-		}
-
-		Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
-		
-		eraseEvent.set_address(Address(data_list[lookupBlock] + lbnOffset, PAGE));
-		
-		if (controller.issue(eraseEvent) == FAILURE) {  
-			printf("Erase failed\n"); 
-			break; 
-		}
-
-		event.incr_time_taken(eraseEvent.get_time_taken() + readEvent.get_time_taken());
-
-		// Statistics
-		controller.stats.numFTLRead++;
-		controller.stats.numFTLErase++;
 	}
 	
 	//block erase
+	Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
+	readEvent.set_address(readAddress);
+		
+	if (controller.issue(readEvent) == FAILURE) { 
+		printf("Read failed\n"); 
+		break; 
+	}
+	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
+		
+	eraseEvent.set_address(Address(data_list[lookupBlock] + lbnOffset, PAGE));
+		
+	if (controller.issue(eraseEvent) == FAILURE) {  
+		printf("Erase failed\n"); 
+		break; 
+	}
+	event.incr_time_taken(eraseEvent.get_time_taken() + readEvent.get_time_taken());
+
+	// Statistics
+	controller.stats.numFTLRead++;
+	controller.stats.numFTLErase++;
 	
 	//Statistics
 	controller.stats.numFTLEraseF++;

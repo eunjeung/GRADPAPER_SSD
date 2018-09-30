@@ -337,10 +337,6 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		else
 			continue;
 		
-		if (controller.issue(readEvent) == FAILURE) { 
-			printf("Read failed\n"); 
-			break; 
-		}
 		
 		//need to valid page's logical address ............
 		
@@ -366,11 +362,15 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
 		
-	eraseEvent.set_address(Address(event.get_address().get_linear_address(), BLOCK));
-		
+	eraseEvent.set_address(Address(data_list[lookupBlock], BLOCK));
+	
+	
 	if (controller.issue(eraseEvent) == FAILURE) {  
-		printf("Erase failed\n"); 
+		assert(false); 
 	}
+	
+	//free_list.push_back
+
 	event.incr_time_taken(eraseEvent.get_time_taken());
 
 	// Statistics

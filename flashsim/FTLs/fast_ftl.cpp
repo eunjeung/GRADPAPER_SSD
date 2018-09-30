@@ -345,22 +345,20 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 			break; 
 		}
 
-		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
-		writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
-		writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
+		Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
 		
-		if (controller.issue(writeEvent) == FAILURE) {  
-			printf("Write failed\n"); 
+		eraseEvent.set_address(Address(data_list[lookupBlock] + lbnOffset, PAGE));
+		
+		if (controller.issue(eraseEvent) == FAILURE) {  
+			printf("Erase failed\n"); 
 			break; 
 		}
 
-		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
+		event.incr_time_taken(eraseEvent.get_time_taken() + readEvent.get_time_taken());
 
 		// Statistics
 		controller.stats.numFTLRead++;
-		controller.stats.numFTLWrite++;
-		controller.stats.numWLRead++;
-		controller.stats.numWLWrite++;
+		controller.stats.numFTLErase++;
 	}
 	
 	//block erase

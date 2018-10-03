@@ -329,8 +329,10 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		
 		Address seq = Address(data_list[lookupBlock] + i, PAGE);
 		
-		if(get_state(seq) == VALID)
+		if(get_state(seq) == VALID){
 			readAddress = seq;
+			printf("sssss\n");
+		}
 		else if(lbnOffset != i && data_list[lookupBlock] != -1 && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
 			readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
 		}
@@ -358,7 +360,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		controller.stats.numFTLWrite++;
 		
 	}
-	
+	/*
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
 		
@@ -369,10 +371,11 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		assert(false); 
 	}
 	
+	
 	//free_list.push_back
 
 	event.incr_time_taken(eraseEvent.get_time_taken());
-
+	*/
 	// Statistics
 	controller.stats.numFTLErase++;
 	

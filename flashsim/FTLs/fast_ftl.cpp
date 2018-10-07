@@ -285,7 +285,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	memset(buff1, 0, sizeof(char)*PAGE_SIZE);
 	*/
 
-
+	//181007 edit : need to think whether currentBlock(log pages) needs
 	bool found = false;
 	while (!found && currentBlock != NULL)
 	{
@@ -329,11 +329,12 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		
 		Address seq = Address(data_list[lookupBlock] + i, PAGE);
 		
+		/*
 		if(get_state(seq) == VALID){
 			readAddress = seq;
-			printf("sssss\n");
 		}
-		else if(lbnOffset != i && data_list[lookupBlock] != -1 && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
+		*/
+		if(lbnOffset != i && data_list[lookupBlock] != -1 && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
 			readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
 		}
 		else
@@ -360,7 +361,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		controller.stats.numFTLWrite++;
 		
 	}
-	/*
+	
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
 		
@@ -371,11 +372,13 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		assert(false); 
 	}
 	
-	
+	//set block 181007 edit : need to find block parameter
+	cleanup_block(event, );
+
 	//free_list.push_back
 
 	event.incr_time_taken(eraseEvent.get_time_taken());
-	*/
+	
 	// Statistics
 	controller.stats.numFTLErase++;
 	
@@ -384,6 +387,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 	return controller.issue(event);
 }
+
 
 void FtlImpl_Fast::switch_sequential(Event &event)
 {
@@ -720,4 +724,3 @@ void FtlImpl_Fast::print_ftl_statistics()
 {
 	Block_manager::instance()->print_statistics();
 }
-

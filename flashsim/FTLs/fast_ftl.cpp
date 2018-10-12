@@ -373,7 +373,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	}
 	
 	//set block 181007 edit : need to find block parameter
-	cleanup_block(event, );
+	//cleanup_block(event, );
 
 	//free_list.push_back
 

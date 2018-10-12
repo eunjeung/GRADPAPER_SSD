@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "ssd.h"
+#include <string.h>
 
 using namespace ssd;
 
@@ -134,6 +135,7 @@ enum status Block::_erase(Event &event)
 	assert(data != NULL && erase_delay >= 0.0);
 	uint i;
 
+    printf("HERE!!!!!!!!!!!!!\n");
 	if (!event.get_noop())
 	{
 		if(erases_remaining < 1)
@@ -142,11 +144,24 @@ enum status Block::_erase(Event &event)
 			return FAILURE;
 		}
 
-		for(i = 0; i < size; i++)
-		{
-			//assert(data[i].get_state() == INVALID);
-			data[i].set_state(EMPTY);
-		}
+        long tmp = event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+
+        char* baseBlockAddress = (char*) page_data + event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+        char* endBlockAddress = baseBlockAddress + size;
+        printf("ADDR = %p\n", baseBlockAddress);
+        printf("ADDR = %p\n", page_data);
+        printf("ADDR = %p\n", baseBlockAddress + size);
+
+
+
+        for(i = 0; i < size; i++)
+        {
+            printf("ADDR !!!!! = %p\n", baseBlockAddress + i);
+            memset((char*) page_data + ((tmp + i)*PAGE_SIZE),  0, sizeof(char)*PAGE_SIZE);
+            data[i].set_state(EMPTY);
+        }
+
+        assert(baseBlockAddress + i == endBlockAddress);
 
 
 		event.incr_time_taken(erase_delay);

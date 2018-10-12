@@ -56,7 +56,7 @@ int main()
 	void *buff3 = malloc(sizeof(char)*PAGE_SIZE);
 
 
-	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
+	memset(buff1, 43, sizeof(char)*PAGE_SIZE);
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 //	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	

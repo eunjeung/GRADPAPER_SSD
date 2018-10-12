@@ -323,39 +323,39 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	}
 
 	printf("Erasing %li for %lu\n", event.get_address().get_linear_address(), event.get_logical_address());
-	
+
 	for (uint i=0; i<BLOCK_SIZE; i++){
 		Address readAddress;
-		
+
 		Address seq = Address(data_list[lookupBlock] + i, PAGE);
-		
+
 		/*
 		if(get_state(seq) == VALID){
 			readAddress = seq;
 		}
 		*/
-		if(lbnOffset != i && data_list[lookupBlock] != -1 && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
+		if(lbnOffset != i && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
 			readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
 		}
 		else
 			continue;
-		
-		
+
+
 		//need to valid page's logical address ............
-		
+
 		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
 		readEvent.set_address(readAddress);
-		
+
  		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
 		writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
 		writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
-		
+
 		if (controller.issue(writeEvent) == FAILURE) {  
 			printf("Write failed\n"); 
 			break; 
 		}
  		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
-		
+
  		// Statistics
 		controller.stats.numFTLRead++;
 		controller.stats.numFTLWrite++;
@@ -368,6 +368,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	eraseEvent.set_address(Address(data_list[lookupBlock], BLOCK));
 	
 	
+    printf("HAHAHAH\n");
 	if (controller.issue(eraseEvent) == FAILURE) {  
 		assert(false); 
 	}
@@ -385,6 +386,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	//Statistics
 	controller.stats.numFTLEraseF++;
 
+    return SUCCESS;
 	return controller.issue(event);
 }
 

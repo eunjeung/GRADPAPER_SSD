@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "ssd.h"
+#include <string.h>
 
 using namespace ssd;
 
@@ -142,12 +143,19 @@ enum status Block::_erase(Event &event)
 			return FAILURE;
 		}
 
+		long tmp = event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+		char* baseBlockAddress = (char*) page_data + event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+        	char* endBlockAddress = baseBlockAddress + size;
+
 		for(i = 0; i < size; i++)
-		{
+		{	
+			memset((char*) page_data + ((tmp + i)*PAGE_SIZE),  0, sizeof(char)*PAGE_SIZE);
 			//assert(data[i].get_state() == INVALID);
 			data[i].set_state(EMPTY);
 		}
 
+		
+		assert(baseBlockAddress + i == endBlockAddress);
 
 		event.incr_time_taken(erase_delay);
 		last_erase_time = event.get_start_time() + event.get_time_taken();
@@ -155,7 +163,7 @@ enum status Block::_erase(Event &event)
 		pages_valid = 0;
 		pages_invalid = 0;
 		state = FREE;
-
+		
 		Block_manager::instance()->update_block(this);
 	}
 

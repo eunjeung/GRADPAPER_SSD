@@ -322,8 +322,10 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		}
 	}
 
-	printf("Erasing %li for %lu\n", event.get_address().get_linear_address(), event.get_logical_address());
+	printf("\n***** Erasing %li for %lu\n\n", event.get_address().get_linear_address(), event.get_logical_address());
 	
+
+	int validcnt = 0;
 	for (uint i=0; i<BLOCK_SIZE; i++){
 		Address readAddress;
 		
@@ -340,8 +342,6 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		else
 			continue;
 		
-		
-		//need to valid page's logical address ............
 		
 		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
 		readEvent.set_address(readAddress);
@@ -361,13 +361,16 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 			break; 
 		}
  		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
-		
+		printf("############## time : %lf\n", event.get_time_taken());		
+
  		// Statistics
 		controller.stats.numFTLRead++;
 		controller.stats.numFTLWrite++;
-		
+		validcnt++;
 	}
 	
+	printf("\n\n***** # of valid pages (read & write) : %d\n", validcnt);
+
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
 		
@@ -380,6 +383,8 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	
 	event.incr_time_taken(eraseEvent.get_time_taken());
 	
+	printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
+
 	// Statistics
 	controller.stats.numFTLErase++;
 	

@@ -28,7 +28,8 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE 1
+#define FILE_SIZE_1 1
+#define FILE_SIZE_2 4
 //#define SIZE 262144
 
 using namespace ssd;
@@ -60,13 +61,15 @@ int main()
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 //	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
-	for (int i = 0; i < FILE_SIZE; i++)
+	for (int i = 0; i < FILE_SIZE_1; i++)
 	{
 		//long int r = random()%SIZE;
 		//printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
-	result = ssd -> event_arrive(WRITE, 1, 1, (double)(300*1), buff2);
+	for (int i = 1; i < FILE_SIZE_2; i++){
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+	}
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
@@ -82,7 +85,7 @@ int main()
 
 	ssd -> print_statistics();
 
-	for (int i = 0; i < FILE_SIZE; i++)
+	for (int i = 0; i < FILE_SIZE_1; i++)
 	{
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);

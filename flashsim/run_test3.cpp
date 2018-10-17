@@ -28,7 +28,7 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 1
+#define FILE_SIZE_1 2
 #define FILE_SIZE_2 4
 //#define SIZE 262144
 
@@ -71,7 +71,7 @@ int main()
 	for (int i = 1; i < FILE_SIZE_2; i++){
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}*/
-	result = ssd -> event_arrive(WRITE, 1, 1, (double)(300*4), buff2);
+	result = ssd -> event_arrive(WRITE, 3, 1, (double)(300*4), buff2);
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
@@ -86,12 +86,25 @@ int main()
 	printf("number of '2' : %d \n", count2);	
 
 	ssd -> print_statistics();
-
+	
+	
 	for (int i = 0; i < FILE_SIZE_1; i++)
-	{
-	//	long int r = random()%SIZE;
-	//	printf("%d: %d\n", i, r);
+	{	
+		printf("\n====================== force_erase start %d \n",i);
 		result = ssd -> event_arrive(FORCE_ERASE, i, 1, (double)(300*i));
+		
+		count1=0;
+		count2=0;
+		for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
+			ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+			if(ret==0) count1++;
+			else{
+				ret1 = memcmp((page_data+(i*PAGE_SIZE)), buff2, (sizeof(char)*PAGE_SIZE));
+				if(ret1==0) count2++;
+			}
+		}
+		printf("# of 1 : %d\n", count1);
+		printf("# of 2 : %d\n", count2);
 	}
 
 	count1=0;

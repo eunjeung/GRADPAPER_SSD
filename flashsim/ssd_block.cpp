@@ -143,7 +143,8 @@ enum status Block::_erase(Event &event)
 			return FAILURE;
 		}
 
-		long tmp = event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+		//long tmp = event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
+		long tmp = event.get_address().get_linear_address();
 		char* baseBlockAddress = (char*) page_data + event.get_address().get_linear_address() - event.get_logical_address() % BLOCK_SIZE;
         	char* endBlockAddress = baseBlockAddress + size;
 

@@ -362,13 +362,13 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		}
  		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
 		printf("############## time : %lf\n", event.get_time_taken());		
-
+	
+		
  		// Statistics
 		controller.stats.numFTLRead++;
 		controller.stats.numFTLWrite++;
 		validcnt++;
 	}
-	
 	printf("\n\n***** # of valid pages (read & write) : %d\n", validcnt);
 
 	//block erase
@@ -384,13 +384,16 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	event.incr_time_taken(eraseEvent.get_time_taken());
 	
 	printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
+		
+	data_list[lookupBlock] = newDataBlock.get_linear_address();
 
 	// Statistics
 	controller.stats.numFTLErase++;
 	
 	//Statistics
 	controller.stats.numFTLEraseF++;
-
+	
+	update_map_block(event);
 	return controller.issue(event);
 }
 

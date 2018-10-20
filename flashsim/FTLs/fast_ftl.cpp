@@ -342,37 +342,37 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 		for(uint k=lbnoffset; k<(eventSize+lbnoffset); k++){
 			if(k != i && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
 				readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
-				break;
+							
+				Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
+				readEvent.set_address(readAddress);
+				
+				if(controller.issue(readEvent) == FAILURE) {
+					printf("Read failed\n");
+					break;
+				}		
+
+
+				Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
+				writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
+				writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
+				
+				if (controller.issue(writeEvent) == FAILURE) {  
+					printf("Write failed\n"); 
+					break; 
+				}
+				event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
+				printf("############## time : %lf\n", event.get_time_taken());		
+			
+				
+				// Statistics
+				controller.stats.numFTLRead++;
+				controller.stats.numFTLWrite++;
+				validcnt++;
 			}
 			else
 				continue;
 		}
 		
-		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
-		readEvent.set_address(readAddress);
-		
-		if(controller.issue(readEvent) == FAILURE) {
-			printf("Read failed\n");
-			break;
-		}		
-
-
- 		Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
-		writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
-		writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
-		
-		if (controller.issue(writeEvent) == FAILURE) {  
-			printf("Write failed\n"); 
-			break; 
-		}
- 		event.incr_time_taken(writeEvent.get_time_taken() + readEvent.get_time_taken());
-		printf("############## time : %lf\n", event.get_time_taken());		
-	
-		
- 		// Statistics
-		controller.stats.numFTLRead++;
-		controller.stats.numFTLWrite++;
-		validcnt++;
 	}
 	printf("\n\n***** # of valid pages (read & write) : %d\n", validcnt);
 

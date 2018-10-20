@@ -57,15 +57,15 @@ int main()
 	void *buff3 = malloc(sizeof(char)*PAGE_SIZE);
 
 
-	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
-	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
-	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
+	memset(buff1, 1, sizeof(char)*PAGE_SIZE*2);
+	memset(buff2, 2, sizeof(char)*PAGE_SIZE*2);
+	memset(buff3, 3, sizeof(char)*PAGE_SIZE*2);
 	
 	for (int i = 0; i < FILE_SIZE_1; i++)
 	{
 		//long int r = random()%SIZE;
 		//printf("%d: %d\n", i, r);
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
+		result = ssd -> event_arrive(WRITE, i, 2, (double)(300*i), buff1);
 	}
 	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){

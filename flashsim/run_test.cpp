@@ -28,7 +28,7 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 1
+#define FILE_SIZE_1 2
 #define FILE_SIZE_2 4
 //#define SIZE 262144
 
@@ -87,12 +87,12 @@ int main()
 
 	ssd -> print_statistics();
 
-	for (int i = 0; i < FILE_SIZE_1; i++)
-	{
+	//for (int i = 0; i < FILE_SIZE_1; i++)
+	//{
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);
-		result = ssd -> event_arrive(FORCE_ERASE, i, 1, (double)(300*i));
-	}
+		result = ssd -> event_arrive(FORCE_ERASE, 0, 2,  (double)(300*0));
+	//}
 
 	count1=0;
 	count2=0;

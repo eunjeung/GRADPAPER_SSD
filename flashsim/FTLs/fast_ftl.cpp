@@ -282,6 +282,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	
 	uint eventSize = event.get_size();
 
+
 	/*
 	void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
 	memset(buff1, 0, sizeof(char)*PAGE_SIZE);
@@ -324,21 +325,31 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 	printf("\n***** Erasing %li for %lu\n\n", event.get_address().get_linear_address(), event.get_logical_address());
 	
-
+	int blockNum = 1;
+	if(eventSize > BLOCK_SIZE){
+		blockNum = eventSize/BLOCK_SIZE + 1;
+	}
+	
 	int validcnt = 0;
-	for (uint i=0; i<BLOCK_SIZE; i++){
+	int index = -1;
+	int blocktmp = 1;
+	long eraseBlock = lookupBlock;	
+	
+	for (uint i=0; i<BLOCK_SIZE*blockNum; i++){
+
 		Address readAddress;
 		
-		Address seq = Address(data_list[lookupBlock] + i, PAGE);
+		index++;
 		
-		/*
-		if(get_state(seq) == VALID){
-			readAddress = seq;
+		if(i >= BLOCK_SIZE*blocktmp){
+			index = 0;
+			blocktmp += 1;
+			lookupBlock += 1;
 		}
-		*/
+		
 		if(i < lbnOffset || i >= (lbnOffset + eventSize)){
-			if(get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
-				readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
+			if(get_state(Address(data_list[lookupBlock]+index, PAGE))==VALID){
+				readAddress.set_linear_address(data_list[lookupBlock] + index, PAGE);
 								
 				Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
 				readEvent.set_address(readAddress);
@@ -351,7 +362,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 				Event writeEvent = Event(WRITE, event.get_logical_address(), 1, event.get_start_time()+readEvent.get_time_taken());
 				writeEvent.set_payload((char*)page_data + readAddress.get_linear_address() * PAGE_SIZE);
-				writeEvent.set_address(Address(newDataBlock.get_linear_address() + i, PAGE));
+				writeEvent.set_address(Address(newDataBlock.get_linear_address() + index, PAGE));
 				
 				if (controller.issue(writeEvent) == FAILURE) {  
 					printf("Write failed\n"); 
@@ -376,17 +387,19 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
-		
-	eraseEvent.set_address(Address(data_list[lookupBlock], BLOCK));
+	
+	for(int w = 0; w < blockNum ; w++){
+		eraseEvent.set_address(Address(data_list[eraseBlock + w], BLOCK));
 	
 	
-	if (controller.issue(eraseEvent) == FAILURE) {  
-		assert(false); 
+		if (controller.issue(eraseEvent) == FAILURE) {  
+			assert(false); 
+		}
+	
+		event.incr_time_taken(eraseEvent.get_time_taken());
+	
+		printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
 	}
-	
-	event.incr_time_taken(eraseEvent.get_time_taken());
-	
-	printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
 		
 	data_list[lookupBlock] = newDataBlock.get_linear_address();
 

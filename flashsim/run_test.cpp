@@ -71,7 +71,7 @@ int main()
 	for (int i = 1; i < FILE_SIZE_2; i++){
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}*/
-	result = ssd -> event_arrive(WRITE, 1, 1, (double)(300*4), buff2);
+	result = ssd -> event_arrive(WRITE, 3, 1, (double)(300*4), buff2);
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;

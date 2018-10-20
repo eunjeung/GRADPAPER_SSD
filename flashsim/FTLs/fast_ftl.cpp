@@ -326,25 +326,40 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	printf("\n***** Erasing %li for %lu\n\n", event.get_address().get_linear_address(), event.get_logical_address());
 	
 	int blockNum = 1;
-	if(eventSize > BLOCK_SIZE){
-		blockNum = eventSize/BLOCK_SIZE + 1;
+	if((lbnOffset + eventSize) > BLOCK_SIZE){
+		blockNum = (lbnOffset + eventSize)/BLOCK_SIZE + 1;
 	}
 	
 	int validcnt = 0;
 	int index = -1;
 	int blocktmp = 1;
-	long eraseBlock = lookupBlock;	
-	
-	for (uint i=0; i<BLOCK_SIZE*blockNum; i++){
-
-		Address readAddress;
 		
+	for (uint i=0; i<BLOCK_SIZE*blockNum; i++){
+				
+		Address readAddress;
+
 		index++;
 		
 		if(i >= BLOCK_SIZE*blocktmp){
 			index = 0;
 			blocktmp += 1;
+			
+			Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());	
+			eraseEvent.set_address(Address(data_list[lookupBlock], BLOCK));
+	
+			if (controller.issue(eraseEvent) == FAILURE) {  
+				assert(false); 
+			}
+		
+			event.incr_time_taken(eraseEvent.get_time_taken());
+			
+			controller.stats.numFTLErase++;
+
+			data_list[lookupBlock] = newDataBlock.get_linear_address();			
+			
 			lookupBlock += 1;
+
+			newDataBlock = Block_manager::instance()->get_free_block(DATA, event);
 		}
 		
 		if(i < lbnOffset || i >= (lbnOffset + eventSize)){
@@ -388,20 +403,18 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	//block erase
 	Event eraseEvent = Event(ERASE, event.get_logical_address(), 1, event.get_start_time());
 	
-	for(int w = 0; w < blockNum ; w++){
-		eraseEvent.set_address(Address(data_list[eraseBlock + w], BLOCK));
+	eraseEvent.set_address(Address(data_list[lookupBlock], BLOCK));
 	
 	
-		if (controller.issue(eraseEvent) == FAILURE) {  
-			assert(false); 
-		}
-	
-		event.incr_time_taken(eraseEvent.get_time_taken());
-	
-		printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
+	if (controller.issue(eraseEvent) == FAILURE) {  
+		assert(false); 
 	}
+	
+	event.incr_time_taken(eraseEvent.get_time_taken());
 		
 	data_list[lookupBlock] = newDataBlock.get_linear_address();
+	
+	printf("***** force_erase time taken : %lf\n\n", event.get_time_taken());
 
 	// Statistics
 	controller.stats.numFTLErase++;

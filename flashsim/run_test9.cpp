@@ -21,7 +21,7 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 1
+#define FILE_SIZE_1 6
 #define FILE_SIZE_2 4
 //#define SIZE 262144
  using namespace ssd;
@@ -47,9 +47,9 @@
  	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
-
-	//#TEST_CASE_4 : 4 - single page file. overwrite it until you cannot find it in memory. 
 	
+	//#TEST_CASE_6 - multiple page file (bigger than the block size) and check similar to step 4.
+
 	for (int i = 0; i < FILE_SIZE_1; i++)
 	{
 		//long int r = random()%SIZE;

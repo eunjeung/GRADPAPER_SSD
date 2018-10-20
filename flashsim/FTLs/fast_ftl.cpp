@@ -286,45 +286,46 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 	void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
 	memset(buff1, 0, sizeof(char)*PAGE_SIZE);
 	*/
-
-	bool found = false;
-	while (!found && currentBlock != NULL)
-	{
-		for (int i=0;i<currentBlock->numPages;i++)
+	
+	for(uint k=lbnOffset; k<(lbnOffset+eventSize); k++){
+		bool found = false;
+		while (!found && currentBlock != NULL)
 		{
-			//event.incr_time_taken(RAM_READ_DELAY);
-			if (currentBlock->aPages[i] == (long)event.get_logical_address())
+			for (int i=0;i<currentBlock->numPages;i++)
 			{
-				Address address = Address(currentBlock->address.get_linear_address() + i, PAGE);
-				event.set_address(address);
+				//event.incr_time_taken(RAM_READ_DELAY);
+				if (currentBlock->aPages[i] == (long)event.get_logical_address())
+				{
+					Address address = Address(currentBlock->address.get_linear_address() + i, PAGE);
+					event.set_address(address);
 
-				// Cancel the while and for loop
-				found = true;
-				break;
+					// Cancel the while and for loop
+					found = true;
+					break;
+				}
+			}
+
+			currentBlock = currentBlock->next;
+		}
+
+		if (!found)
+		{
+			if (sequential_logicalblock_address == lookupBlock && sequential_offset > k)
+			{
+				event.set_address(Address(sequential_address.get_linear_address() + k, PAGE));
+			}
+			else if (data_list[lookupBlock] != -1) // If page is in the data block
+			{
+				event.set_address(Address(data_list[lookupBlock] + k , PAGE));
+
+			} else { // Empty
+				event.set_address(Address(0, PAGE));
+				event.set_noop(true);
 			}
 		}
 
-		currentBlock = currentBlock->next;
+		printf("\n***** Erasing %li for %lu\n\n", event.get_address().get_linear_address(), event.get_logical_address());
 	}
-
-	if (!found)
-	{
-		if (sequential_logicalblock_address == lookupBlock && sequential_offset > lbnOffset)
-		{
-			event.set_address(Address(sequential_address.get_linear_address() + lbnOffset, PAGE));
-		}
-		else if (data_list[lookupBlock] != -1) // If page is in the data block
-		{
-			event.set_address(Address(data_list[lookupBlock] + lbnOffset , PAGE));
-
-		} else { // Empty
-			event.set_address(Address(0, PAGE));
-			event.set_noop(true);
-		}
-	}
-
-	printf("\n***** Erasing %li for %lu\n\n", event.get_address().get_linear_address(), event.get_logical_address());
-	
 
 	int validcnt = 0;
 	for (uint i=0; i<BLOCK_SIZE; i++){
@@ -337,12 +338,15 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 			readAddress = seq;
 		}
 		*/
-		if(lbnOffset != i && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
-			readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
-		}
-		else
-			continue;
 		
+		for(uint k=lbnoffset; k<(eventSize+lbnoffset); k++){
+			if(k != i && get_state(Address(data_list[lookupBlock]+i, PAGE))==VALID){
+				readAddress.set_linear_address(data_list[lookupBlock] + i, PAGE);
+				break;
+			}
+			else
+				continue;
+		}
 		
 		Event readEvent = Event(READ, event.get_logical_address(), 1, event.get_start_time());
 		readEvent.set_address(readAddress);

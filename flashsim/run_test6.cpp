@@ -103,10 +103,12 @@ int main()
 	//	long int r = random()%SIZE;
 	//	printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(FORCE_ERASE, FILE_SIZE_A, FILE_SIZE_B,  (double)(300*0));
+//		result = ssd -> event_arrive(FORCE_ERASE, (FILE_SIZE_A+FILE_SIZE_B), FILE_SIZE_C,  (double)(300*0));
 	//}
 	
 	count1=0;
 	count2=0;
+	count3=0;
 
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));

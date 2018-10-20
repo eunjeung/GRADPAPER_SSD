@@ -351,7 +351,7 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 				assert(false); 
 			}
 		
-			event.incr_time_taken(eraseEvent.get_time_taken());
+			event.incr_time_taken(eraseEvent.get_time_taken());		
 			
 			controller.stats.numFTLErase++;
 

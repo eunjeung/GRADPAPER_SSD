@@ -280,12 +280,13 @@ enum status FtlImpl_Fast::force_erase(Event &event)
 
 	LogPageBlock *currentBlock = log_pages;
 	
+	uint eventSize = event.get_size();
+
 	/*
 	void *buff1 = malloc(sizeof(char)*PAGE_SIZE);
 	memset(buff1, 0, sizeof(char)*PAGE_SIZE);
 	*/
 
-	//181007 edit : need to think whether currentBlock(log pages) needs
 	bool found = false;
 	while (!found && currentBlock != NULL)
 	{

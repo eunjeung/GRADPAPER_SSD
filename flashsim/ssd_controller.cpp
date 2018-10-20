@@ -91,7 +91,7 @@ enum status Controller::issue(Event &event_list)
 	 * stop processing events and return failure status if any event in the 
 	 *    list fails */
 	for(cur = &event_list; cur != NULL; cur = cur -> get_next()){
-		if(cur -> get_size() != 1){
+		if(cur -> get_size() != 1 && cur-> get_event_type() != FORCE_ERASE){
 			fprintf(stderr, "Controller: %s: Received non-single-page-sized event from FTL.\n", __func__);
 			return FAILURE;
 		}

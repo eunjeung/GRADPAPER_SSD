@@ -109,7 +109,7 @@ using namespace ssd;
 
     while(1) {
         printf("it = %d\n", iterations++);
-        for (int i = FILE_SIZE_A ; i < (FILE_SIZE_A + FILE_SIZE_B); i++)
+        for (int i = 0 ; i < (FILE_SIZE_A + FILE_SIZE_B + FILE_SIZE_C); i++)
         {
             result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff4);
         }
@@ -127,15 +127,37 @@ using namespace ssd;
         if (count2 == 0)
             break;
 
-        if (!(it %100)) {
-            ssd.print_statistics();
+        if (!(iterations %100)) {
+            ssd -> print_statistics();
+	    break;
         }
-        printf("count1 : %d\n" count2);
+        printf("count2 : %d\n", count2);
     }
 
+/*
+    while(1){
+	for (int i = 0 ; i < (FILE_SIZE_A); i++)
+        {
+             result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff4);
+        }
+	count2 = 0;
+	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
+            ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+            if(ret1==0) {
+                count2++;
+                continue;
+            }
+        }
+	 printf("count2 : %d\n", count2);
+
+        if (count2 == 0)
+            break;
+
+	}
+*/
     printf ("\n\n--------- result time : %lf ---------\n", result);
 
-    printf("\n--------- test %d -------- \n", k);
+    printf("\n--------- test -------- \n");
     printf("number of '2' : %d \n", count2);
     printf("Number of iterations : %d \n", iterations);
     ssd -> print_statistics();

@@ -127,15 +127,14 @@ using namespace ssd;
         if (count2 == 0)
             break;
 
-        if (!(it %100)) {
-            ssd.print_statistics();
+        if (!(iterations %100)) {
+            ssd->print_statistics();
         }
-        printf("count1 : %d\n" count2);
+        printf("count1 : %d\n", count2);
     }
 
     printf ("\n\n--------- result time : %lf ---------\n", result);
 
-    printf("\n--------- test %d -------- \n", k);
     printf("number of '2' : %d \n", count2);
     printf("Number of iterations : %d \n", iterations);
     ssd -> print_statistics();

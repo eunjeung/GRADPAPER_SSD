@@ -126,6 +126,11 @@ using namespace ssd;
 
         if (count2 == 0)
             break;
+
+        if (!(it %100)) {
+            ssd.print_statistics();
+        }
+        printf("count1 : %d\n" count2);
     }
 
     printf ("\n\n--------- result time : %lf ---------\n", result);

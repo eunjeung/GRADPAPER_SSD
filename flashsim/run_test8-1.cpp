@@ -75,40 +75,55 @@
  	ssd -> print_statistics();
 	
 	result = 0;
-	
-	
-	printf("\n\n------- checking : %d\n", (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)));
-	printf("------- BLOCK_SIZE : %d\n", BLOCK_SIZE);
+	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)); i++)
+	{
+		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+	}
+ 	count1=0;
+	count2=0;
 
-	for(int k = 2; ; k++){
-		for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)); i++)
-		{
-			result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+ 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
+		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+		if(ret==0) count1++;
+		
+		else{
+			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+			if(ret1==0) count2++;
 		}
-		count1=0;
-		count2=0;
+	}
+ 	printf("\n--------- 2nd test \n");
+	printf("number of '1' : %d \n", count1);
+	printf("number of '2' : %d \n", count2);
+ 	ssd -> print_statistics();
+	
 
-		for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
-			ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-			if(ret==0) count1++;
-			
+	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*13)); i++)
+	{
+		//long int r = random()%SIZE;
+		//printf("%d: %d\n", i, r);
+		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+	}
+ 	count1=0;
+	count2=0;
+	count3=0;
+ 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
+		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+		if(ret==0) count1++;
+		else{
+			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+			if(ret1==0) count2++;
 			else{
-				ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
-				if(ret1==0) count2++;
+				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
+				if(ret2==0) count3++;
 			}
 		}
-		printf("\n--------- %d test \n", k);
-		printf("number of '1' : %d \n", count1);
-		printf("number of '2' : %d \n\n", count2);
-		
-		if(count1==0) break;
-		
-	}	
-	
-	ssd -> print_statistics();
-	
-	printf("\n result : %lf \n\n", result);
-
+	}
+ 	printf("\n--------- 3rd test \n");
+	printf("number of '1' : %d \n", count1);
+	printf("number of '2' : %d \n", count2);
+	printf("number of '3' : %d \n", count3);
+ 	printf("\n\n---------- time : %lf\n\n", result);	
+ 	ssd -> print_statistics();
  	delete ssd;
 	free(buff1);
 	free(buff2);

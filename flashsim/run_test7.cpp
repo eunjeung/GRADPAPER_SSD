@@ -21,7 +21,7 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 1
+#define FILE_SIZE_1 4
 #define FILE_SIZE_2 4
 //#define SIZE 262144
  using namespace ssd;
@@ -71,7 +71,10 @@
  	ssd -> print_statistics();
 	
 	result = 0;
-	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*3)); i++)
+	
+	printf("%d\n", NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*2));	
+
+	for (int i = 0; i < NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*2); i++)
 	{
 		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}

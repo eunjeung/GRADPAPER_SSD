@@ -87,6 +87,8 @@ int main()
 	printf("number of '2' : %d \n", count2);	
 
 	ssd -> print_statistics();
+	
+	//printf("\n\n--------- result : %lf \n\n", result);
 
 	//for (int i = 0; i < FILE_SIZE_1; i++)
 	//{
@@ -112,6 +114,7 @@ int main()
 
 	ssd -> print_statistics();
 	printf("\n");	
+	printf("\n--------- result : %lf \n\n", result);
 
 	delete ssd;
 	free(buff1);

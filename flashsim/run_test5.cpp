@@ -28,7 +28,7 @@
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
 #define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
 //#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 5
+#define FILE_SIZE_1 6
 #define FILE_SIZE_2 4
 //#define SIZE 262144
 
@@ -129,6 +129,9 @@ int main()
 	printf("number of '2' : %d \n", count2);
 
 	ssd -> print_statistics();
+
+	printf("\n\n--------- result : %lf\n", result);
+	
 	/*
 	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
 	{

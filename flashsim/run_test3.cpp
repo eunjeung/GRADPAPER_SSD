@@ -129,6 +129,9 @@ int main()
 	printf("number of '2' : %d \n", count2);
 
 	ssd -> print_statistics();
+
+	printf("\n\n--------- result : %lf \n", result);
+
 	/*
 	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
 	{

@@ -54,7 +54,7 @@
 	
 	//#TEST_CASE_5 - multiple page file (smaller than a block size), and check similar to step 4
 
-	for (int i = 0; i < FILE_SIZE_1; i++)
+	for (int i = 0; i < FILE_SIZE_A; i++)
 	{
 		//long int r = random()%SIZE;
 		//printf("%d: %d\n", i, r);

@@ -102,7 +102,7 @@ using namespace ssd;
 	for(int k = 2; ; k ++){
 		for (int i = FILE_SIZE_A; i < (FILE_SIZE_A + FILE_SIZE_B); i++)
 		{
-			result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+			result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff4);
 		}
 		
 		count1=0;
@@ -112,8 +112,7 @@ using namespace ssd;
 		
 		for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 			ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-			if(ret==0) count1++;
-			
+			if(ret==0) count1++;		
 			else{
 				ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
 				if(ret1==0) count2++;
@@ -135,6 +134,7 @@ using namespace ssd;
 		printf("number of '4' : %d \n", count4);	
 		ssd -> print_statistics();
 		
+		if(count2==0) break;
 	}
 	
 	printf ("\n\n--------- result time : %lf ---------", result);

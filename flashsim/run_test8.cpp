@@ -15,16 +15,19 @@
  * Brendan Tauras 2009-11-02
  *
  * driver to create and run a very basic test of writes then reads */
- #include "ssd.h"
+#include "ssd.h"
 #include <string.h>
 #include <math.h>
+
+//#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
+
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
-#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
-//#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 2
-#define FILE_SIZE_2 4
-//#define SIZE 262144
+#define FILE_SIZE_A (int)(ceil(BLOCK_SIZE*0.3))
+#define FILE_SIZE_B (int)(ceil(BLOCK_SIZE*1.6))
+#define FILE_SIZE_C (int)(ceil(BLOCK_SIZE*0.7))
+
  using namespace ssd;
+
  int main()
 {
 	
@@ -35,7 +38,7 @@
 	
 	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
 	printf("NUMBER_OF_ADDRESSABLE_PAGES : %d\n", NUMBER_OF_ADDRESSABLE_PAGES);
-	printf("USER_ADDRESS_SPACE : %d\n", USER_ADDRESS_SPACE);
+	
  	double result;
 	double start_time=0;
 	int count1 = 0, count2 = 0, count3 =0;
@@ -44,6 +47,7 @@
 	void *buff1 = malloc(sizeof(char)*PAGE_SIZE); 
 	void *buff2 = malloc(sizeof(char)*PAGE_SIZE);
 	void *buff3 = malloc(sizeof(char)*PAGE_SIZE);
+	
  	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 	memset(buff3, 3, sizeof(char)*PAGE_SIZE);

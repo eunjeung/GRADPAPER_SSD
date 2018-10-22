@@ -28,7 +28,7 @@
 
  using namespace ssd;
 
- int main()
+int main()
 {
 	
 	load_config();
@@ -54,71 +54,69 @@
 	
 	//#TEST_CASE_5 - write FILE B(size : 160% block size (content : '2') ) and check how many times it should be overwritten. 
 
+
+    // FIXME: This write is starting from LPN == 0, you should start at a different offset.
+    // File B should be written at the ofsset as if File A was written, that is, at sizeof(FILE_A) offset.
+	//for (int i = FILE_SIZE_A; i < (FILE_SIZE_A + FILE_SIZE_B); i++)
 	for (int i = 0; i < FILE_SIZE_B; i++)
-	{
-		//long int r = random()%SIZE;
-		//printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
-	}
 	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-		if(ret==0) count1++;
-		else{
-			ret1 = memcmp((page_data+(i*PAGE_SIZE)), buff2, (sizeof(char)*PAGE_SIZE));
-			if(ret1==0) count2++;
-		}
+		if(ret==0)
+            count1++;
 	}
+
+    // Make sure that count1 is the same as the FILE_SIZE_B
+    assert(count1 == FILE_SIZE_B);
+
  	printf("\n--------- 1st test \n");
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);	
  	ssd -> print_statistics();
 	
 	result = 0;
-	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)); i++)
-	{
-		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
-	}
- 	count1=0;
-	count2=0;
 
- 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
-		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-		if(ret==0) count1++;
-		
-		else{
-			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
-			if(ret1==0) count2++;
-		}
-	}
- 	printf("\n--------- 2nd test \n");
-	printf("number of '1' : %d \n", count1);
-	printf("number of '2' : %d \n", count2);
- 	ssd -> print_statistics();
-	
+    // WRite from the beginning and check if the write resulted in the erase of
+    // the old file. Stop when the old file is gone.
+   
+    int i = 0, it = 1;
+    while (1) {
+        printf("It: %d\n", ++it);
+        // Check if we need to wrap the i back to the beginning
+        if (i >= NUMBER_OF_ADDRESSABLE_PAGES)
+            i = 0;
 
-	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*13)); i++)
-	{
-		//long int r = random()%SIZE;
-		//printf("%d: %d\n", i, r);
+        // Write a single page at 'i' address
 		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
-	}
- 	count1=0;
-	count2=0;
-	count3=0;
- 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
-		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-		if(ret==0) count1++;
-		else{
-			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
-			if(ret1==0) count2++;
-			else{
-				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
-				if(ret2==0) count3++;
-			}
-		}
-	}
- 	printf("\n--------- 3rd test \n");
+
+        // Compare the memory to check if we still find the old file
+        for(int i = 0, count1 = 0, count2 = 0; i < NUMBER_OF_ADDRESSABLE_PAGES; i++){
+            ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+            if(ret==0) {
+                count1++;
+                continue;
+            }
+            ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+            if(ret1==0) {
+                count2++;
+                continue;
+            }
+        }
+
+        // If the count1 is == 0, we erased the file! So, stop!
+        if (count1 == 0)
+            break;
+
+        // Otherwise, we need to count again at the next iteration.
+        count1 = count2 = 0;
+    }
+
+    assert(count1 == 0);
+    assert(count2 == i);
+
+ 	printf("\n--------- 3rd test!! \n");
+	printf("Number of iterations : %d \n", it);
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);
 	printf("number of '3' : %d \n", count3);

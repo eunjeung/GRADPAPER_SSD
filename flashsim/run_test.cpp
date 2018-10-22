@@ -26,10 +26,8 @@
 #include <string.h>
 #include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
-#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
-//#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 1
-#define FILE_SIZE_2 4
+#define FILE_SIZE_A 1
+#define FILE_SIZE_B 1
 //#define SIZE 262144
 
 using namespace ssd;
@@ -45,7 +43,6 @@ int main()
 	
 	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
 	printf("NUMBER_OF_ADDRESSABLE_PAGES : %d\n", NUMBER_OF_ADDRESSABLE_PAGES);
-	printf("USER_ADDRESS_SPACE : %d\n", USER_ADDRESS_SPACE);
 
 	double result;
 	double start_time=0;
@@ -64,15 +61,12 @@ int main()
 
 	//#TEST_CASE_1 : single page file. force_erase in that file.
 
-	for (int i = 0; i < FILE_SIZE_1; i++)
-	{
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
-	}
-	/*
-	for (int i = 1; i < FILE_SIZE_2; i++){
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
-	}*/
-	result = ssd -> event_arrive(WRITE, FILE_SIZE_1, 1, (double)(300*4), buff2);
+	//FILE_A
+	result = ssd -> event_arrive(WRITE, 0, FILE_SIZE_A, (double)(300*0), buff1);
+	
+	//FILE_B
+	result = ssd -> event_arrive(WRITE, 1, FILE_SIZE_B, (double)(300*1), buff2);
+	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
@@ -88,12 +82,9 @@ int main()
 
 	ssd -> print_statistics();
 	
-	//printf("\n\n--------- result : %lf \n\n", result);
-
-	//for (int i = 0; i < FILE_SIZE_1; i++)
-	//{
-		result = ssd -> event_arrive(FORCE_ERASE, 0, FILE_SIZE_1,  (double)(300*0));
-	//}
+	//FORCE_ERASE : FILE_A
+	result = ssd -> event_arrive(FORCE_ERASE, 0, FILE_SIZE_A,  (double)(300*0));
+	
 
 	count1=0;
 	count2=0;

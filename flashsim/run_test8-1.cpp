@@ -63,8 +63,7 @@ int main()
 	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-		if(ret==0)
-            count1++;
+		if(ret==0) count1++;
 	}
 
     // Make sure that count1 is the same as the FILE_SIZE_B
@@ -88,21 +87,24 @@ int main()
             i = 0;
 
         // Write a single page at 'i' address
-		result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
+	result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 
         // Compare the memory to check if we still find the old file
-        for(int i = 0, count1 = 0, count2 = 0; i < NUMBER_OF_ADDRESSABLE_PAGES; i++){
-            ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
+        for(int j = 0; j < NUMBER_OF_ADDRESSABLE_PAGES; j++){
+            ret = memcmp((page_data+(j*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
             if(ret==0) {
                 count1++;
-                continue;
+		continue;
             }
-            ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+            ret1 = memcmp((page_data+(j*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
             if(ret1==0) {
-                count2++;
-                continue;
+               	count2++;
+		continue;
             }
         }
+	
+	printf("number of '1' : %d \n", count1);
+	printf("number of '2' : %d \n\n", count2);
 
         // If the count1 is == 0, we erased the file! So, stop!
         if (count1 == 0)
@@ -110,6 +112,7 @@ int main()
 
         // Otherwise, we need to count again at the next iteration.
         count1 = count2 = 0;
+	i++;
     }
 
     assert(count1 == 0);

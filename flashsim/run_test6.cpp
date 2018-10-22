@@ -26,12 +26,10 @@
 #include <string.h>
 #include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
-#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
-//#define FILE_SIZE (int)(10*BLOCK_SIZE)
 #define FILE_SIZE_A 3
 #define FILE_SIZE_B 2
 #define FILE_SIZE_C 1
-//#define SIZE 262144
+
 
 using namespace ssd;
 
@@ -46,7 +44,7 @@ int main()
 	
 	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
 	printf("NUMBER_OF_ADDRESSABLE_PAGES : %d\n", NUMBER_OF_ADDRESSABLE_PAGES);
-	printf("USER_ADDRESS_SPACE : %d\n", USER_ADDRESS_SPACE);
+	
 
 	double result;
 	double start_time=0;
@@ -62,16 +60,23 @@ int main()
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
 	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
+	//#TEST_CASE_5 - write multiple page files (A(size = 3), B(size = 2), C(size = 1)). 
+	//		and force_erase B File. 
+
+
+	//FILE_A
 	for (int i = 0; i < FILE_SIZE_A; i++)
 	{
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
 	
+	//FILE_B
 	for (int i = FILE_SIZE_A; i < (FILE_SIZE_A + FILE_SIZE_B); i++)
 	{
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 	}
 	
+	//FILE_C
 	for (int i = (FILE_SIZE_A + FILE_SIZE_B); i < (FILE_SIZE_A + FILE_SIZE_B + FILE_SIZE_C); i++)
 	{
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff3);
@@ -98,13 +103,9 @@ int main()
 
 	ssd -> print_statistics();
 
-	//for (int i = 0; i < FILE_SIZE_1; i++)
-	//{
-	//	long int r = random()%SIZE;
-	//	printf("%d: %d\n", i, r);
-		result = ssd -> event_arrive(FORCE_ERASE, FILE_SIZE_A, FILE_SIZE_B,  (double)(300*0));
-//		result = ssd -> event_arrive(FORCE_ERASE, (FILE_SIZE_A+FILE_SIZE_B), FILE_SIZE_C,  (double)(300*0));
-	//}
+	//FORCE_ERASE : FILE_B
+	result = ssd -> event_arrive(FORCE_ERASE, FILE_SIZE_A, FILE_SIZE_B,  (double)(300*0));
+
 	
 	count1=0;
 	count2=0;

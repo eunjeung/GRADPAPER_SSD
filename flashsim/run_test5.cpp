@@ -26,11 +26,9 @@
 #include <string.h>
 #include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
-#define USER_ADDRESS_SPACE (int)(ceil(NUMBER_OF_ADDRESSABLE_PAGES*0.6))
-//#define FILE_SIZE (int)(10*BLOCK_SIZE)
-#define FILE_SIZE_1 6
-#define FILE_SIZE_2 4
-//#define SIZE 262144
+#define FILE_SIZE_A 6
+#define FILE_SIZE_B 1
+
 
 using namespace ssd;
 
@@ -45,7 +43,7 @@ int main()
 	
 	printf("\nPAGE_SIZE : %d\n", PAGE_SIZE);
 	printf("NUMBER_OF_ADDRESSABLE_PAGES : %d\n", NUMBER_OF_ADDRESSABLE_PAGES);
-	printf("USER_ADDRESS_SPACE : %d\n", USER_ADDRESS_SPACE);
+	
 
 	double result;
 	double start_time=0;
@@ -64,17 +62,15 @@ int main()
 
 	//#TEST_CASE_3 - multiple page file (bigger than the block size). force_erase in that file
 
-	for (int i = 0; i < FILE_SIZE_1; i++)
+	//FILE_A
+	for (int i = 0; i < FILE_SIZE_A; i++)
 	{
-		//long int r = random()%SIZE;
-		//printf("%d: %d\n", i, r);
 		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
 	}
-	/*
-	for (int i = 1; i < FILE_SIZE_2; i++){
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
-	}*/
-	result = ssd -> event_arrive(WRITE, FILE_SIZE_1, 1, (double)(300*4), buff2);
+	
+	//FILE_B
+	result = ssd -> event_arrive(WRITE, FILE_SIZE_A, FILE_SIZE_B, (double)(300*6), buff2);
+	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
@@ -91,26 +87,9 @@ int main()
 	ssd -> print_statistics();
 	
 	
-	//for (int i = 0; i < FILE_SIZE_1; i++)
-	//{	
-		printf("\n====================== force_erase start \n");
-		result = ssd -> event_arrive(FORCE_ERASE, 0, FILE_SIZE_1, (double)(300*0));
-		/*
-		count1=0;
-		count2=0;
-		for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
-			ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-			if(ret==0) count1++;
-			else{
-				ret1 = memcmp((page_data+(i*PAGE_SIZE)), buff2, (sizeof(char)*PAGE_SIZE));
-				if(ret1==0) count2++;
-			}
-		}
-		printf("# of 1 : %d\n", count1);
-		printf("# of 2 : %d\n", count2);
-		*/
-	//}
-
+	//FORCE_ERASE : FILE_A
+	result = ssd -> event_arrive(FORCE_ERASE, 0, FILE_SIZE_A, (double)(300*0));
+	
 	count1=0;
 	count2=0;
 
@@ -132,43 +111,14 @@ int main()
 
 	printf("\n\n--------- result : %lf\n", result);
 	
-	/*
-	for (int i = 1; i < USER_ADDRESS_SPACE; i++)
-	{
-		//long int r = random()%SIZE;
-		//printf("%d: %d\n", i, r);
-		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
-	}
-
-	count1=0;
-	count2=0;
-	count3=0;
-
-	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
-		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
-		if(ret==0) count1++;
-		else{
-			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
-			if(ret1==0) count2++;
-			else{
-				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
-				if(ret2==0) count3++;
-			}
-		}
-	}
-
-	printf("\n--------- 3rd test \n");
-	printf("number of '1' : %d \n", count1);
-	printf("number of '2' : %d \n", count2);
-	printf("number of '3' : %d \n", count3);
-*/
+	
 	printf("\n");	
 
 	//ssd -> print_statistics();
 
 	delete ssd;
 	free(buff1);
-	//free(buff2);
+	free(buff2);
 	//free(buff3);
 	
 	return 0;

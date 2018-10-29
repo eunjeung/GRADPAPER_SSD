@@ -26,6 +26,8 @@
 #include <string.h>
 #include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
+#define FILE_SIZE_A 5
+#define FILE_SIZE_B 1
 
 using namespace ssd;
 
@@ -53,49 +55,41 @@ int main()
 
 	memset(buff1, 1, sizeof(char)*PAGE_SIZE);
 	memset(buff2, 2, sizeof(char)*PAGE_SIZE);
-	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
+//	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
-	//#TEST_CASE_3-1 - write single page files (A,B,C). and force_erase A and B file.
 
+	//#TEST_CASE_2-1 : write A(size=5) and B(size=1). force_erase A file. (bigger than the block size)
+	
 	//FILE_A
-	result = ssd -> event_arrive(WRITE, 0, 1, (double)(300*0), buff1);
+	for (int i = 0; i < FILE_SIZE_A; i++)
+	{
+		result = ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff1);
+	}
+
 	//FILE_B
-	result = ssd -> event_arrive(WRITE, 1, 1, (double)(300*1), buff2);
-	//FILE_C
-	result = ssd -> event_arrive(WRITE, 2, 1, (double)(300*2), buff3);
+	result = ssd -> event_arrive(WRITE, FILE_SIZE_A, FILE_SIZE_B, (double)(300*FILE_SIZE_A), buff2);
 	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
 		if(ret==0) count1++;
 		else{
-			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
+			ret1 = memcmp((page_data+(i*PAGE_SIZE)), buff2, (sizeof(char)*PAGE_SIZE));
 			if(ret1==0) count2++;
-			else{
-				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
-				if(ret2==0) count3++;
-			}
 		}
 	}
 
 	printf("\n--------- 1st test \n");
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);	
-	printf("number of '3' : %d \n", count3);	
 
 	ssd -> print_statistics();
 	
-	result = 0;	
-
+	
 	//FORCE_ERASE : FILE_A
-	result += ssd -> event_arrive(FORCE_ERASE, 0, 1, (double)(300*0));
+	result = ssd -> event_arrive(FORCE_ERASE, 0, FILE_SIZE_A, (double)(300*0));
 	
-	//FORCE_ERASE : FILE_B
-	result += ssd -> event_arrive(FORCE_ERASE, 1, 1, (double)(300*1));
-	
-
 	count1=0;
 	count2=0;
-	count3=0;
 
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));
@@ -104,28 +98,24 @@ int main()
 		else{
 			ret1 = memcmp((page_data+(i*PAGE_SIZE)),buff2,(sizeof(char)*PAGE_SIZE));
 			if(ret1==0) count2++;
-			else{
-				ret2 = memcmp((page_data+(i*PAGE_SIZE)),buff3,(sizeof(char)*PAGE_SIZE));
-				if(ret2==0) count3++;
-			}
 		}
 	}
 
 	printf("\n--------- 2nd test \n");
 	printf("number of '1' : %d \n", count1);
 	printf("number of '2' : %d \n", count2);
-	printf("number of '3' : %d \n", count3);
 
 	ssd -> print_statistics();
-	
+
+	printf("\n\n--------- result : %lf \n", result);
+
 	printf("\n");	
-	printf("\n---------- result : %lf \n\n", result);
-	
+
 	//ssd -> print_statistics();
 
 	delete ssd;
 	free(buff1);
-	//free(buff2);
+	free(buff2);
 	//free(buff3);
 	
 	return 0;

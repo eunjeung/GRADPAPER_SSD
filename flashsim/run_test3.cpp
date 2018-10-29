@@ -26,7 +26,7 @@
 #include <string.h>
 #include <math.h>
 #define NUMBER_OF_ADDRESSABLE_PAGES (int)(NUMBER_OF_ADDRESSABLE_BLOCKS*BLOCK_SIZE)
-#define FILE_SIZE_A 2
+#define FILE_SIZE_A 1
 #define FILE_SIZE_B 1
 
 using namespace ssd;
@@ -58,7 +58,7 @@ int main()
 //	memset(buff3, 3, sizeof(char)*PAGE_SIZE);
 	
 
-	//#TEST_CASE_2 : multiple page file (smaller than block size). force_erase in that file
+	//#TEST_CASE_2-1 : write A(size=1) and B(size=1). force_erase A file. (smaller than the block size)
 	
 	//FILE_A
 	for (int i = 0; i < FILE_SIZE_A; i++)
@@ -67,7 +67,7 @@ int main()
 	}
 
 	//FILE_B
-	result = ssd -> event_arrive(WRITE, 2, FILE_SIZE_B, (double)(300*4), buff2);
+	result = ssd -> event_arrive(WRITE, 1, FILE_SIZE_B, (double)(300*1), buff2);
 	
 	for(int i=0;i<NUMBER_OF_ADDRESSABLE_PAGES;i++){
 		ret = memcmp((page_data+(i*PAGE_SIZE)),buff1,(sizeof(char)*PAGE_SIZE));

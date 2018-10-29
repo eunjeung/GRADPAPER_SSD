@@ -54,7 +54,7 @@
 	
 	//#TEST_CASE_5 - write FILE B(size : 160% block size (content : '2') ) and check how many times it should be overwritten. 
 
-	for (int i = 0; i < FILE_SIZE_B; i++)
+	for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*2)); i++)
 	{
 		//long int r = random()%SIZE;
 		//printf("%d: %d\n", i, r);
@@ -77,11 +77,11 @@
 	result = 0;
 	
 	
-	printf("\n\n------- checking : %d\n", (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)));
+	printf("\n\n------- checking : %d\n", (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*3)));
 	printf("------- BLOCK_SIZE : %d\n", BLOCK_SIZE);
 
 	for(int k = 2; ; k++){
-		for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*8)); i++)
+		for (int i = 0; i < (NUMBER_OF_ADDRESSABLE_PAGES-(BLOCK_SIZE*2)); i++)
 		{
 			result += ssd -> event_arrive(WRITE, i, 1, (double)(300*i), buff2);
 		}
